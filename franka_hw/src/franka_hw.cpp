@@ -85,9 +85,9 @@ FrankaHW::FrankaHW(const std::array<std::string, 7>& joint_names,
 
     if (joint_limits_interface::getSoftJointLimits(urdf_joint, soft_limits)) {
       if (joint_limits_interface::getJointLimits(urdf_joint, joint_limits)) {
-        joint_limits.max_acceleration = franka::kMaxJointAcceleration[i];
+        joint_limits.max_acceleration = franka::kMaxJointAcceleration[i]*5;
         joint_limits.has_acceleration_limits = true;
-        joint_limits.max_jerk = franka::kMaxJointJerk[i];
+        joint_limits.max_jerk = franka::kMaxJointJerk[i]*5;
         joint_limits.has_jerk_limits = true;
         joint_limits_interface::PositionJointSoftLimitsHandle position_limit_handle(
             position_joint_interface_.getHandle(joint_name), joint_limits, soft_limits);
@@ -278,8 +278,9 @@ bool FrankaHW::prepareSwitch(const std::list<hardware_interface::ControllerInfo>
   requested_control_mode &= ~stop_control_mode;
   requested_control_mode |= start_control_mode;
 
-  auto limit_rate = get_limit_rate_();
-  auto cutoff_frequency = get_cutoff_frequency_();
+// OVERRIDING THESE FUNCTION
+  auto limit_rate = get_limit_rate_()*100;
+  auto cutoff_frequency = get_cutoff_frequency_()*10;
   auto internal_controller = get_internal_controller_();
 
   using std::placeholders::_1;
@@ -299,7 +300,7 @@ bool FrankaHW::prepareSwitch(const std::list<hardware_interface::ControllerInfo>
       run_function_ = [=](franka::Robot& robot, Callback ros_callback) {
         robot.control(std::bind(&FrankaHW::controlCallback<franka::JointPositions>, this,
                                 std::cref(position_joint_command_), ros_callback, _1, _2),
-                      internal_controller, limit_rate, cutoff_frequency);
+                      internal_controller, limit_rate, cutoff_frequency); // OVERRIDING THESE FUNCTION
       };
       break;
     case ControlMode::JointVelocity:

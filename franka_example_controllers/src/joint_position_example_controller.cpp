@@ -3,6 +3,7 @@
 #include <franka_example_controllers/joint_position_example_controller.h>
 
 #include <cmath>
+#include <iostream>
 
 #include <controller_interface/controller_base.h>
 #include <hardware_interface/hardware_interface.h>
@@ -40,16 +41,16 @@ bool JointPositionExampleController::init(hardware_interface::RobotHW* robot_har
     }
   }
 
-  std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
-  for (size_t i = 0; i < q_start.size(); i++) {
-    if (std::abs(position_joint_handles_[i].getPosition() - q_start[i]) > 0.1) {
-      ROS_ERROR_STREAM(
-          "JointPositionExampleController: Robot is not in the expected starting position for "
-          "running this example. Run `roslaunch franka_example_controllers move_to_start.launch "
-          "robot_ip:=<robot-ip> load_gripper:=<has-attached-gripper>` first.");
-      return false;
-    }
-  }
+  // std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
+  // for (size_t i = 0; i < q_start.size(); i++) {
+  //   if (std::abs(position_joint_handles_[i].getPosition() - q_start[i]) > 0.1) {
+  //     ROS_ERROR_STREAM(
+  //         "JointPositionExampleController: Robot is not in the expected starting position for "
+  //         "running this example. Run `roslaunch franka_example_controllers move_to_start.launch "
+  //         "robot_ip:=<robot-ip> load_gripper:=<has-attached-gripper>` first.");
+  //     return false;
+  //   }
+  // }
 
   return true;
 }
@@ -64,15 +65,24 @@ void JointPositionExampleController::starting(const ros::Time& /* time */) {
 void JointPositionExampleController::update(const ros::Time& /*time*/,
                                             const ros::Duration& period) {
   elapsed_time_ += period;
+  // print()
 
-  double delta_angle = M_PI / 16 * (1 - std::cos(M_PI / 5.0 * elapsed_time_.toSec())) * 0.2;
+
+
+
+  double delta_angle = M_PI / 8 * (1 - std::cos(M_PI * 0.5 * elapsed_time_.toSec())) * 0.2;
+
   for (size_t i = 0; i < 7; ++i) {
     if (i == 4) {
-      position_joint_handles_[i].setCommand(initial_pose_[i] - delta_angle);
+      position_joint_handles_[i].setCommand(initial_pose_[i] - delta_angle*6);
     } else {
-      position_joint_handles_[i].setCommand(initial_pose_[i] + delta_angle);
-    }
+      position_joint_handles_[i].setCommand(initial_pose_[i] + delta_angle*6);
+    } 
   }
+  // std::cout << 'The period is ' << period<< << delta_angle'\n   ';
+  // for (size_t i=0; i<7; ++i){
+  //   std::cout<<'The joint value is '<<initial_pose_[i] - delta_angle*1 << '\n';
+  // }
 }
 
 }  // namespace franka_example_controllers
