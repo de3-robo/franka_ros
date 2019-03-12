@@ -4,5 +4,5 @@ joint_names:
   - panda_finger_joint2
 default_speed: 0.1  # [m/s]
 default_grasp_epsilon:
-  inner: 0.010 # [m]
-  outer: 0.010 # [m]
+  inner: 0.02 # [m]
+  outer: 0.02 # [m]
